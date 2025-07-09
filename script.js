@@ -7,7 +7,7 @@ canvas.height = 640;
 
 // Load assets
 const spaceshipImg = new Image();
-spaceshipImg.src = 'assets/spaceship.png';
+spaceshipImg.src = 'spaceship.png';
 const alienImg = new Image();
 alienImg.src = 'assets/alien.png';
 const bulletImg = new Image();
