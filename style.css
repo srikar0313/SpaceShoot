@@ -2,30 +2,26 @@
 body {
   margin: 0;
   overflow: hidden;
-  background: url('assets/space-bg.jpg') no-repeat center center fixed;
-  background-size: cover;
+  background: black;
   font-family: monospace;
   color: white;
   text-align: center;
 }
-
 #gameCanvas {
-  background: transparent;
   display: block;
   margin: 0 auto;
   border: 2px solid white;
+  background-color: transparent;
 }
-
 #scoreDisplay {
   position: absolute;
   top: 10px;
   left: 10px;
-  font-size: 1.5em;
-  background-color: rgba(0, 0, 0, 0.5);
+  font-size: 1.2em;
+  background-color: rgba(0,0,0,0.5);
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: 5px;
 }
-
 #instructions {
   font-size: 1em;
   margin-top: 10px;
