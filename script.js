@@ -147,6 +147,7 @@ function startGame() {
   document.getElementById("gameCanvas").style.display = "block";
   document.getElementById("scoreDisplay").style.display = "block";
   document.getElementById("instructions").style.display = "block";
+  document.getElementById("pauseBtn").style.display = "block";
   requestAnimationFrame(gameLoop);
 }
 
