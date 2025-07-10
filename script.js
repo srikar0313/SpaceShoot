@@ -22,9 +22,9 @@ let numberOfEnemies = 3;
 let score = 0;
 let keys = {};
 let playerName = "";
-let bulletState = 'ready'; // ✅ one bullet at a time
-let isPaused = false;       // ✅ pause/resume toggle
-let animationId = null;     // ✅ track requestAnimationFrame
+let bulletState = 'ready';
+let isPaused = false;
+let animationId = null;
 
 // Create enemies
 for (let i = 0; i < numberOfEnemies; i++) {
@@ -40,7 +40,6 @@ for (let i = 0; i < numberOfEnemies; i++) {
 document.addEventListener('keydown', (e) => {
   keys[e.key] = true;
 
-  // Fire only if bullet is ready
   if (e.key === ' ' && bulletState === 'ready') {
     bullets.push({ x: playerX + 16, y: playerY });
     shootSound.play();
@@ -52,7 +51,7 @@ document.addEventListener('keyup', (e) => {
   keys[e.key] = false;
 });
 
-// Draw functions
+// Drawing
 function drawBackground() {
   ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
 }
@@ -69,7 +68,7 @@ function drawBullets() {
     b.y -= 10;
     if (b.y < 0) {
       bullets.splice(i, 1);
-      bulletState = 'ready'; // allow next shot
+      bulletState = 'ready';
     }
   }
 }
@@ -83,7 +82,6 @@ function drawScore() {
 function gameLoop() {
   drawBackground();
 
-  // Player movement
   if (keys['ArrowLeft']) playerX -= 5;
   if (keys['ArrowRight']) playerX += 5;
   playerX = Math.max(0, Math.min(canvas.width - 64, playerX));
@@ -99,7 +97,6 @@ function gameLoop() {
       e.y += e.yChange;
     }
 
-    // Game over
     if (e.y > 440) {
       ctx.fillStyle = 'white';
       ctx.font = '40px sans-serif';
@@ -109,7 +106,6 @@ function gameLoop() {
       return;
     }
 
-    // Bullet collision
     for (let j = bullets.length - 1; j >= 0; j--) {
       const dx = bullets[j].x - e.x;
       const dy = bullets[j].y - e.y;
@@ -121,10 +117,8 @@ function gameLoop() {
         score++;
         document.getElementById("scoreDisplay").innerText = "Score: " + score;
 
-        // Reset enemy position
         e.x = Math.random() * 760;
         e.y = Math.random() * 100 + 50;
-
         break;
       }
     }
@@ -135,11 +129,11 @@ function gameLoop() {
   drawScore();
 
   if (!isPaused) {
-    animationId = requestAnimationFrame(gameLoop); // only if not paused
+    animationId = requestAnimationFrame(gameLoop);
   }
 }
 
-// Start Game
+// Start game
 function startGame() {
   const input = document.getElementById("playerName");
   if (!input.value.trim()) {
@@ -155,18 +149,21 @@ function startGame() {
   gameLoop();
 }
 
-// Pause Button Logic
-document.getElementById("pauseBtn").addEventListener("click", () => {
-  if (isPaused) {
-    isPaused = false;
-    document.getElementById("pauseBtn").innerText = "Pause";
-    gameLoop(); // resume
-  } else {
-    isPaused = true;
-    document.getElementById("pauseBtn").innerText = "Resume";
-    cancelAnimationFrame(animationId); // stop loop
-  }
-});
+// Pause/Resume button
+window.onload = () => {
+  const pauseBtn = document.getElementById("pauseBtn");
+  pauseBtn.addEventListener("click", () => {
+    if (isPaused) {
+      isPaused = false;
+      pauseBtn.innerText = "Pause";
+      gameLoop();
+    } else {
+      isPaused = true;
+      pauseBtn.innerText = "Resume";
+      cancelAnimationFrame(animationId);
+    }
+  });
+};
 
 // Leaderboard
 function saveScore(name, score) {
