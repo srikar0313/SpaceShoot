@@ -110,12 +110,11 @@ function gameLoop() {
         bullets.splice(j, 1);
         score++;
         document.getElementById("scoreDisplay").innerText = "Score: " + score;
-        enemies[i] = {
-          x: Math.random() * 760,
-          y: Math.random() * 100 + 50,
-          xChange: 3,
-          yChange: 20
-        };
+
+        // ✅ FIX: Only reset position, not speed/direction
+        e.x = Math.random() * 760;
+        e.y = Math.random() * 100 + 50;
+
         break;
       }
     }
@@ -159,5 +158,5 @@ function showLeaderboard() {
   });
   alert(msg);
 }
-window.startGame = startGame;
 
+window.startGame = startGame;
