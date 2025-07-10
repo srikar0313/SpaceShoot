@@ -5,7 +5,7 @@ canvas.height = 600;
 
 // Load assets
 const backgroundImg = new Image();
-backgroundImg.src = 'assets/background.jpg';
+backgroundImg.src = 'assets/background.png';
 const spaceshipImg = new Image();
 spaceshipImg.src = 'assets/player.png';
 const alienImg = new Image();
