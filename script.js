@@ -13,7 +13,7 @@ alienImg.src = 'assets/alien.png'; // Placeholder
 const bulletImg = new Image();
 bulletImg.src = 'assets/bullet.png';
 const shootSound = new Audio('assets/laser.wav');
-const explosionSound = new Audio('assets/laser.wav');
+const explosionSound = new Audio('assets/explosion.wav');
 
 let playerX = 370;
 let playerY = 480;
