@@ -33,17 +33,18 @@ for (let i = 0; i < numberOfEnemies; i++) {
   });
 }
 
-// Controls
+// ✅ Controls
 document.addEventListener('keydown', (e) => {
   keys[e.key] = true;
+
   if (e.key === ' ') {
     if (bullets.length === 0) {
       bullets.push({ x: playerX + 16, y: playerY });
       shootSound.play();
+    }
   }
-}
-
 });
+
 document.addEventListener('keyup', (e) => {
   keys[e.key] = false;
 });
@@ -114,7 +115,6 @@ function gameLoop() {
         score++;
         document.getElementById("scoreDisplay").innerText = "Score: " + score;
 
-        // ✅ FIX: Only reset position, not speed/direction
         e.x = Math.random() * 760;
         e.y = Math.random() * 100 + 50;
 
