@@ -22,6 +22,7 @@ let numberOfEnemies = 3;
 let score = 0;
 let keys = {};
 let playerName = "";
+let bulletState = 'ready'; // ✅ NEW: bullet state tracking
 
 // Populate initial enemies
 for (let i = 0; i < numberOfEnemies; i++) {
@@ -33,15 +34,15 @@ for (let i = 0; i < numberOfEnemies; i++) {
   });
 }
 
-// ✅ Controls
+// Controls
 document.addEventListener('keydown', (e) => {
   keys[e.key] = true;
 
-  if (e.key === ' ') {
-    if (bullets.length === 0) {
-      bullets.push({ x: playerX + 16, y: playerY });
-      shootSound.play();
-    }
+  // ✅ Fire only if bullet is ready
+  if (e.key === ' ' && bulletState === 'ready') {
+    bullets.push({ x: playerX + 16, y: playerY });
+    shootSound.play();
+    bulletState = 'fire';
   }
 });
 
@@ -64,7 +65,10 @@ function drawBullets() {
     let b = bullets[i];
     ctx.drawImage(bulletImg, b.x, b.y, 32, 32);
     b.y -= 10;
-    if (b.y < 0) bullets.splice(i, 1);
+    if (b.y < 0) {
+      bullets.splice(i, 1);
+      bulletState = 'ready'; // ✅ Allow next shot
+    }
   }
 }
 function drawScore() {
@@ -112,9 +116,11 @@ function gameLoop() {
       if (dist < 30) {
         explosionSound.play();
         bullets.splice(j, 1);
+        bulletState = 'ready'; // ✅ Allow next shot after hit
         score++;
         document.getElementById("scoreDisplay").innerText = "Score: " + score;
 
+        // Reset enemy position
         e.x = Math.random() * 760;
         e.y = Math.random() * 100 + 50;
 
