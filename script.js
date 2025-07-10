@@ -5,11 +5,11 @@ canvas.height = 600;
 
 // Load assets
 const backgroundImg = new Image();
-backgroundImg.src = 'assets/background.png';
+backgroundImg.src = 'assets/space-bg.png';
 const spaceshipImg = new Image();
-spaceshipImg.src = 'assets/player.png';
+spaceshipImg.src = 'assets/spaceship.png';
 const alienImg = new Image();
-alienImg.src = 'assets/enemy.png';
+alienImg.src = 'assets/alien.png';
 const bulletImg = new Image();
 bulletImg.src = 'assets/bullet.png';
 const shootSound = new Audio('assets/laser.wav');
