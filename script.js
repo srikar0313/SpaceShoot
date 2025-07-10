@@ -9,11 +9,11 @@ canvas.height = 640;
 const spaceshipImg = new Image();
 spaceshipImg.src = 'spaceship.png';
 const alienImg = new Image();
-alienImg.src = 'assets/alien.png';
+alienImg.src = 'alien.png';
 const bulletImg = new Image();
-bulletImg.src = 'assets/bullet.png';
-const shootSound = new Audio('assets/shoot.wav');
-const explosionSound = new Audio('assets/explosion.wav');
+bulletImg.src = 'bullet.png';
+const shootSound = new Audio('shoot.wav');
+const explosionSound = new Audio('explosion.wav');
 
 let spaceshipX = canvas.width / 2 - 20;
 let spaceshipY = canvas.height - 60;
