@@ -1,113 +1,144 @@
-
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-
-canvas.width = 480;
-canvas.height = 640;
+canvas.width = 800;
+canvas.height = 600;
 
 // Load assets
+const backgroundImg = new Image();
+backgroundImg.src = 'assets/background.jpg';
 const spaceshipImg = new Image();
-spaceshipImg.src = 'spaceship.png';
+spaceshipImg.src = 'assets/player.png';
 const alienImg = new Image();
-alienImg.src = 'alien.png';
+alienImg.src = 'assets/enemy.png';
 const bulletImg = new Image();
-bulletImg.src = 'bullet.png';
-const shootSound = new Audio('shoot.wav');
-const explosionSound = new Audio('explosion.wav');
+bulletImg.src = 'assets/bullet.png';
+const shootSound = new Audio('assets/laser.wav');
+const explosionSound = new Audio('assets/explosion.wav');
 
-let spaceshipX = canvas.width / 2 - 20;
-let spaceshipY = canvas.height - 60;
-let bullets = [];
+// Player
+let playerX = 370;
+let playerY = 480;
+let playerXChange = 0;
+
+// Bullet
+let bulletX = 0;
+let bulletY = 480;
+let bulletYChange = 10;
+let bulletState = 'ready';
+
+// Enemies
 let enemies = [];
+let numberOfEnemies = 3;
+for (let i = 0; i < numberOfEnemies; i++) {
+  enemies.push({
+    x: Math.random() * 760,
+    y: Math.random() * 100 + 50,
+    xChange: 3,
+    yChange: 20
+  });
+}
+
+// Score
 let score = 0;
 
+// Keyboard controls
 let keys = {};
-let enemyDirection = 1; // 1 = right, -1 = left
-
 document.addEventListener('keydown', (e) => {
   keys[e.key] = true;
-  if (e.key === " ") {
-    bullets.push({ x: spaceshipX + 15, y: spaceshipY });
-    shootSound.play();
+  if (e.key === ' ') {
+    if (bulletState === 'ready') {
+      shootSound.play();
+      bulletX = playerX + 10;
+      bulletState = 'fire';
+    }
   }
 });
-
 document.addEventListener('keyup', (e) => {
   keys[e.key] = false;
 });
 
-function drawSpaceship() {
-  ctx.drawImage(spaceshipImg, spaceshipX, spaceshipY, 40, 40);
+// Draw Functions
+function drawBackground() {
+  ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+}
+function drawPlayer() {
+  ctx.drawImage(spaceshipImg, playerX, playerY, 64, 64);
+}
+function drawEnemy(enemy) {
+  ctx.drawImage(alienImg, enemy.x, enemy.y, 64, 64);
+}
+function drawBullet() {
+  ctx.drawImage(bulletImg, bulletX, bulletY, 32, 32);
+}
+function drawScore() {
+  ctx.fillStyle = 'white';
+  ctx.font = '24px sans-serif';
+  ctx.fillText('Score: ' + score, 10, 30);
 }
 
-function drawBullets() {
-  for (let i = bullets.length - 1; i >= 0; i--) {
-    bullets[i].y -= 8;
-    ctx.drawImage(bulletImg, bullets[i].x, bullets[i].y, 15, 15);
-    if (bullets[i].y < 0) bullets.splice(i, 1);
-  }
+// Collision Detection
+function isCollision(enemy) {
+  const dx = bulletX - enemy.x;
+  const dy = bulletY - enemy.y;
+  return Math.sqrt(dx * dx + dy * dy) < 30;
 }
 
-function drawEnemies() {
-  for (let i = enemies.length - 1; i >= 0; i--) {
-    enemies[i].x += 1.5 * enemyDirection;
-    ctx.drawImage(alienImg, enemies[i].x, enemies[i].y, 30, 30);
-
-    // Reverse direction if enemy hits bounds
-    if (enemies[i].x <= 0 || enemies[i].x >= canvas.width - 30) {
-      enemyDirection *= -1;
-      for (let j = 0; j < enemies.length; j++) {
-        enemies[j].y += 10; // Move down slightly
-      }
-      break;
-    }
-
-    if (enemies[i].y > canvas.height - 40) {
-      alert("Game Over!");
-      document.location.reload();
-    }
-  }
-}
-
-function detectCollisions() {
-  for (let b = bullets.length - 1; b >= 0; b--) {
-    for (let e = enemies.length - 1; e >= 0; e--) {
-      let dx = Math.abs(bullets[b].x - enemies[e].x);
-      let dy = Math.abs(bullets[b].y - enemies[e].y);
-      if (dx < 20 && dy < 20) {
-        bullets.splice(b, 1);
-        enemies.splice(e, 1);
-        score += 10;
-        explosionSound.play();
-        document.getElementById("scoreDisplay").innerText = "Score: " + score;
-        break;
-      }
-    }
-  }
-}
-
-function moveSpaceship() {
-  if (keys["ArrowLeft"]) spaceshipX -= 6;
-  if (keys["ArrowRight"]) spaceshipX += 6;
-  spaceshipX = Math.max(0, Math.min(canvas.width - 40, spaceshipX));
-}
-
-function spawnEnemies() {
-  if (Math.random() < 0.015) {
-    const x = Math.random() * (canvas.width - 30);
-    enemies.push({ x, y: 0 });
-  }
-}
-
+// Game Loop
 function gameLoop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  moveSpaceship();
-  drawSpaceship();
-  drawBullets();
-  drawEnemies();
-  detectCollisions();
-  spawnEnemies();
+  drawBackground();
+
+  // Player movement
+  if (keys['ArrowLeft']) playerX -= 5;
+  if (keys['ArrowRight']) playerX += 5;
+  if (playerX < 0) playerX = 0;
+  if (playerX > canvas.width - 64) playerX = canvas.width - 64;
+
+  drawPlayer();
+
+  // Bullet movement
+  if (bulletState === 'fire') {
+    drawBullet();
+    bulletY -= bulletYChange;
+    if (bulletY <= 0) {
+      bulletY = playerY;
+      bulletState = 'ready';
+    }
+  }
+
+  // Enemies movement
+  for (let i = 0; i < enemies.length; i++) {
+    let e = enemies[i];
+    e.x += e.xChange;
+    if (e.x <= 0 || e.x >= canvas.width - 64) {
+      e.xChange *= -1;
+      e.y += e.yChange;
+    }
+
+    if (e.y > 440) {
+      // Game over
+      ctx.fillStyle = 'white';
+      ctx.font = '40px sans-serif';
+      ctx.fillText('GAME OVER', canvas.width / 2 - 100, canvas.height / 2);
+      return;
+    }
+
+    if (isCollision(e)) {
+      explosionSound.play();
+      bulletY = 480;
+      bulletState = 'ready';
+      score++;
+      enemies[i] = {
+        x: Math.random() * 760,
+        y: Math.random() * 100 + 50,
+        xChange: 3,
+        yChange: 20
+      };
+    }
+
+    drawEnemy(e);
+  }
+
+  drawScore();
   requestAnimationFrame(gameLoop);
 }
-
 gameLoop();
