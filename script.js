@@ -159,3 +159,5 @@ function showLeaderboard() {
   });
   alert(msg);
 }
+window.startGame = startGame;
+
