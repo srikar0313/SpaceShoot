@@ -37,9 +37,12 @@ for (let i = 0; i < numberOfEnemies; i++) {
 document.addEventListener('keydown', (e) => {
   keys[e.key] = true;
   if (e.key === ' ') {
-    bullets.push({ x: playerX + 16, y: playerY });
-    shootSound.play();
+    if (bullets.length === 0) {
+      bullets.push({ x: playerX + 16, y: playerY });
+      shootSound.play();
   }
+}
+
 });
 document.addEventListener('keyup', (e) => {
   keys[e.key] = false;
