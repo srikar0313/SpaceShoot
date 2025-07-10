@@ -3,6 +3,7 @@ const ctx = canvas.getContext('2d');
 canvas.width = 800;
 canvas.height = 600;
 
+// Assets
 const backgroundImg = new Image();
 backgroundImg.src = 'assets/space-bg.png';
 const spaceshipImg = new Image();
@@ -14,6 +15,7 @@ bulletImg.src = 'assets/bullet.png';
 const shootSound = new Audio('assets/laser.wav');
 const explosionSound = new Audio('assets/explosion.wav');
 
+// Game variables
 let playerX = 370;
 let playerY = 480;
 let bullets = [];
@@ -27,26 +29,27 @@ let isPaused = false;
 let animationId = null;
 
 // Create enemies
-for (let i = 0; i < numberOfEnemies; i++) {
-  enemies.push({
-    x: Math.random() * 760,
-    y: Math.random() * 100 + 50,
-    xChange: 3,
-    yChange: 20
-  });
+function initEnemies() {
+  enemies = [];
+  for (let i = 0; i < numberOfEnemies; i++) {
+    enemies.push({
+      x: Math.random() * 760,
+      y: Math.random() * 100 + 50,
+      xChange: 3,
+      yChange: 20
+    });
+  }
 }
 
 // Controls
 document.addEventListener('keydown', (e) => {
   keys[e.key] = true;
-
   if (e.key === ' ' && bulletState === 'ready') {
     bullets.push({ x: playerX + 16, y: playerY });
     shootSound.play();
     bulletState = 'fire';
   }
 });
-
 document.addEventListener('keyup', (e) => {
   keys[e.key] = false;
 });
@@ -82,6 +85,7 @@ function drawScore() {
 function gameLoop() {
   drawBackground();
 
+  // Player movement
   if (keys['ArrowLeft']) playerX -= 5;
   if (keys['ArrowRight']) playerX += 5;
   playerX = Math.max(0, Math.min(canvas.width - 64, playerX));
@@ -103,6 +107,7 @@ function gameLoop() {
       ctx.fillText('GAME OVER', canvas.width / 2 - 100, canvas.height / 2);
       saveScore(playerName, score);
       showLeaderboard();
+      document.getElementById("restartBtn").style.display = "block";
       return;
     }
 
@@ -116,7 +121,6 @@ function gameLoop() {
         bulletState = 'ready';
         score++;
         document.getElementById("scoreDisplay").innerText = "Score: " + score;
-
         e.x = Math.random() * 760;
         e.y = Math.random() * 100 + 50;
         break;
@@ -133,7 +137,7 @@ function gameLoop() {
   }
 }
 
-// Start game
+// Start Game
 function startGame() {
   const input = document.getElementById("playerName");
   if (!input.value.trim()) {
@@ -146,22 +150,35 @@ function startGame() {
   document.getElementById("scoreDisplay").style.display = "block";
   document.getElementById("instructions").style.display = "block";
   document.getElementById("pauseBtn").style.display = "block";
+  document.getElementById("restartBtn").style.display = "none";
+  initEnemies();
   gameLoop();
 }
 
-// Pause/Resume button
+// Pause Button
 window.onload = () => {
-  const pauseBtn = document.getElementById("pauseBtn");
-  pauseBtn.addEventListener("click", () => {
+  document.getElementById("pauseBtn").addEventListener("click", () => {
+    isPaused = !isPaused;
     if (isPaused) {
-      isPaused = false;
-      pauseBtn.innerText = "Pause";
-      gameLoop();
-    } else {
-      isPaused = true;
-      pauseBtn.innerText = "Resume";
+      document.getElementById("pauseBtn").innerText = "Resume";
       cancelAnimationFrame(animationId);
+    } else {
+      document.getElementById("pauseBtn").innerText = "Pause";
+      gameLoop();
     }
+  });
+
+  // ✅ Restart Button
+  document.getElementById("restartBtn").addEventListener("click", () => {
+    score = 0;
+    bullets = [];
+    bulletState = 'ready';
+    isPaused = false;
+    document.getElementById("scoreDisplay").innerText = "Score: 0";
+    document.getElementById("pauseBtn").innerText = "Pause";
+    document.getElementById("restartBtn").style.display = "none";
+    initEnemies();
+    gameLoop();
   });
 };
 
