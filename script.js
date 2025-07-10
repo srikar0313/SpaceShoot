@@ -22,9 +22,11 @@ let numberOfEnemies = 3;
 let score = 0;
 let keys = {};
 let playerName = "";
-let bulletState = 'ready'; // ✅ NEW: bullet state tracking
+let bulletState = 'ready'; // ✅ one bullet at a time
+let isPaused = false;       // ✅ pause/resume toggle
+let animationId = null;     // ✅ track requestAnimationFrame
 
-// Populate initial enemies
+// Create enemies
 for (let i = 0; i < numberOfEnemies; i++) {
   enemies.push({
     x: Math.random() * 760,
@@ -38,7 +40,7 @@ for (let i = 0; i < numberOfEnemies; i++) {
 document.addEventListener('keydown', (e) => {
   keys[e.key] = true;
 
-  // ✅ Fire only if bullet is ready
+  // Fire only if bullet is ready
   if (e.key === ' ' && bulletState === 'ready') {
     bullets.push({ x: playerX + 16, y: playerY });
     shootSound.play();
@@ -50,7 +52,7 @@ document.addEventListener('keyup', (e) => {
   keys[e.key] = false;
 });
 
-// UI + Drawing
+// Draw functions
 function drawBackground() {
   ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
 }
@@ -67,7 +69,7 @@ function drawBullets() {
     b.y -= 10;
     if (b.y < 0) {
       bullets.splice(i, 1);
-      bulletState = 'ready'; // ✅ Allow next shot
+      bulletState = 'ready'; // allow next shot
     }
   }
 }
@@ -84,8 +86,7 @@ function gameLoop() {
   // Player movement
   if (keys['ArrowLeft']) playerX -= 5;
   if (keys['ArrowRight']) playerX += 5;
-  if (playerX < 0) playerX = 0;
-  if (playerX > canvas.width - 64) playerX = canvas.width - 64;
+  playerX = Math.max(0, Math.min(canvas.width - 64, playerX));
 
   drawPlayer();
   drawBullets();
@@ -116,7 +117,7 @@ function gameLoop() {
       if (dist < 30) {
         explosionSound.play();
         bullets.splice(j, 1);
-        bulletState = 'ready'; // ✅ Allow next shot after hit
+        bulletState = 'ready';
         score++;
         document.getElementById("scoreDisplay").innerText = "Score: " + score;
 
@@ -132,10 +133,13 @@ function gameLoop() {
   }
 
   drawScore();
-  requestAnimationFrame(gameLoop);
+
+  if (!isPaused) {
+    animationId = requestAnimationFrame(gameLoop); // only if not paused
+  }
 }
 
-// Start game only after name entered
+// Start Game
 function startGame() {
   const input = document.getElementById("playerName");
   if (!input.value.trim()) {
@@ -148,10 +152,23 @@ function startGame() {
   document.getElementById("scoreDisplay").style.display = "block";
   document.getElementById("instructions").style.display = "block";
   document.getElementById("pauseBtn").style.display = "block";
-  requestAnimationFrame(gameLoop);
+  gameLoop();
 }
 
-// Leaderboard functions
+// Pause Button Logic
+document.getElementById("pauseBtn").addEventListener("click", () => {
+  if (isPaused) {
+    isPaused = false;
+    document.getElementById("pauseBtn").innerText = "Pause";
+    gameLoop(); // resume
+  } else {
+    isPaused = true;
+    document.getElementById("pauseBtn").innerText = "Resume";
+    cancelAnimationFrame(animationId); // stop loop
+  }
+});
+
+// Leaderboard
 function saveScore(name, score) {
   let scores = JSON.parse(localStorage.getItem("highScores")) || [];
   scores.push({ name, score });
