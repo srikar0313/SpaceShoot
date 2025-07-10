@@ -1,4 +1,3 @@
-
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 canvas.width = 800;
@@ -9,7 +8,7 @@ backgroundImg.src = 'assets/space-bg.png';
 const spaceshipImg = new Image();
 spaceshipImg.src = 'assets/spaceship.png';
 const alienImg = new Image();
-alienImg.src = 'assets/alien.png'; // Placeholder
+alienImg.src = 'assets/alien.png';
 const bulletImg = new Image();
 bulletImg.src = 'assets/bullet.png';
 const shootSound = new Audio('assets/laser.wav');
@@ -17,9 +16,7 @@ const explosionSound = new Audio('assets/explosion.wav');
 
 let playerX = 370;
 let playerY = 480;
-
 let bullets = [];
-
 let enemies = [];
 let numberOfEnemies = 3;
 for (let i = 0; i < numberOfEnemies; i++) {
@@ -33,6 +30,8 @@ for (let i = 0; i < numberOfEnemies; i++) {
 
 let score = 0;
 let keys = {};
+let playerName = "";
+
 document.addEventListener('keydown', (e) => {
   keys[e.key] = true;
   if (e.key === ' ') {
@@ -66,9 +65,40 @@ function drawScore() {
   ctx.font = '24px sans-serif';
   ctx.fillText('Score: ' + score, 10, 30);
 }
+
+function startGame() {
+  const input = document.getElementById("playerName");
+  if (!input.value.trim()) {
+    alert("Please enter your name.");
+    return;
+  }
+  playerName = input.value.trim();
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("gameCanvas").style.display = "block";
+  document.getElementById("scoreDisplay").style.display = "block";
+  document.getElementById("instructions").style.display = "block";
+  gameLoop();
+}
+
+function saveScore(name, score) {
+  let scores = JSON.parse(localStorage.getItem("highScores")) || [];
+  scores.push({ name, score });
+  scores.sort((a, b) => b.score - a.score);
+  scores = scores.slice(0, 5);
+  localStorage.setItem("highScores", JSON.stringify(scores));
+}
+
+function showLeaderboard() {
+  const scores = JSON.parse(localStorage.getItem("highScores")) || [];
+  let msg = "🏆 Top 5 Scores:\\n";
+  scores.forEach((s, i) => {
+    msg += `${i + 1}. ${s.name}: ${s.score}\\n`;
+  });
+  alert(msg);
+}
+
 function gameLoop() {
   drawBackground();
-
   if (keys['ArrowLeft']) playerX -= 5;
   if (keys['ArrowRight']) playerX += 5;
   if (playerX < 0) playerX = 0;
@@ -89,6 +119,8 @@ function gameLoop() {
       ctx.fillStyle = 'white';
       ctx.font = '40px sans-serif';
       ctx.fillText('GAME OVER', canvas.width / 2 - 100, canvas.height / 2);
+      saveScore(playerName, score);
+      showLeaderboard();
       return;
     }
 
@@ -100,6 +132,7 @@ function gameLoop() {
         explosionSound.play();
         bullets.splice(j, 1);
         score++;
+        document.getElementById("scoreDisplay").innerText = "Score: " + score;
         enemies[i] = {
           x: Math.random() * 760,
           y: Math.random() * 100 + 50,
@@ -109,11 +142,9 @@ function gameLoop() {
         break;
       }
     }
-
     drawEnemy(e);
   }
 
   drawScore();
   requestAnimationFrame(gameLoop);
 }
-gameLoop();
