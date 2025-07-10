@@ -19,6 +19,11 @@ let playerY = 480;
 let bullets = [];
 let enemies = [];
 let numberOfEnemies = 3;
+let score = 0;
+let keys = {};
+let playerName = "";
+
+// Populate initial enemies
 for (let i = 0; i < numberOfEnemies; i++) {
   enemies.push({
     x: Math.random() * 760,
@@ -28,10 +33,7 @@ for (let i = 0; i < numberOfEnemies; i++) {
   });
 }
 
-let score = 0;
-let keys = {};
-let playerName = "";
-
+// Controls
 document.addEventListener('keydown', (e) => {
   keys[e.key] = true;
   if (e.key === ' ') {
@@ -43,6 +45,7 @@ document.addEventListener('keyup', (e) => {
   keys[e.key] = false;
 });
 
+// UI + Drawing
 function drawBackground() {
   ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
 }
@@ -66,39 +69,11 @@ function drawScore() {
   ctx.fillText('Score: ' + score, 10, 30);
 }
 
-function startGame() {
-  const input = document.getElementById("playerName");
-  if (!input.value.trim()) {
-    alert("Please enter your name.");
-    return;
-  }
-  playerName = input.value.trim();
-  document.getElementById("startScreen").style.display = "none";
-  document.getElementById("gameCanvas").style.display = "block";
-  document.getElementById("scoreDisplay").style.display = "block";
-  document.getElementById("instructions").style.display = "block";
-  gameLoop();
-}
-
-function saveScore(name, score) {
-  let scores = JSON.parse(localStorage.getItem("highScores")) || [];
-  scores.push({ name, score });
-  scores.sort((a, b) => b.score - a.score);
-  scores = scores.slice(0, 5);
-  localStorage.setItem("highScores", JSON.stringify(scores));
-}
-
-function showLeaderboard() {
-  const scores = JSON.parse(localStorage.getItem("highScores")) || [];
-  let msg = "🏆 Top 5 Scores:\\n";
-  scores.forEach((s, i) => {
-    msg += `${i + 1}. ${s.name}: ${s.score}\\n`;
-  });
-  alert(msg);
-}
-
+// Game Loop
 function gameLoop() {
   drawBackground();
+
+  // Player movement
   if (keys['ArrowLeft']) playerX -= 5;
   if (keys['ArrowRight']) playerX += 5;
   if (playerX < 0) playerX = 0;
@@ -115,6 +90,7 @@ function gameLoop() {
       e.y += e.yChange;
     }
 
+    // Game over
     if (e.y > 440) {
       ctx.fillStyle = 'white';
       ctx.font = '40px sans-serif';
@@ -124,6 +100,7 @@ function gameLoop() {
       return;
     }
 
+    // Bullet collision
     for (let j = bullets.length - 1; j >= 0; j--) {
       const dx = bullets[j].x - e.x;
       const dy = bullets[j].y - e.y;
@@ -142,9 +119,43 @@ function gameLoop() {
         break;
       }
     }
+
     drawEnemy(e);
   }
 
   drawScore();
   requestAnimationFrame(gameLoop);
+}
+
+// Start game only after name entered
+function startGame() {
+  const input = document.getElementById("playerName");
+  if (!input.value.trim()) {
+    alert("Please enter your name.");
+    return;
+  }
+  playerName = input.value.trim();
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("gameCanvas").style.display = "block";
+  document.getElementById("scoreDisplay").style.display = "block";
+  document.getElementById("instructions").style.display = "block";
+  requestAnimationFrame(gameLoop);
+}
+
+// Leaderboard functions
+function saveScore(name, score) {
+  let scores = JSON.parse(localStorage.getItem("highScores")) || [];
+  scores.push({ name, score });
+  scores.sort((a, b) => b.score - a.score);
+  scores = scores.slice(0, 5);
+  localStorage.setItem("highScores", JSON.stringify(scores));
+}
+
+function showLeaderboard() {
+  const scores = JSON.parse(localStorage.getItem("highScores")) || [];
+  let msg = "🏆 Top 5 Scores:\n";
+  scores.forEach((s, i) => {
+    msg += `${i + 1}. ${s.name}: ${s.score}\n`;
+  });
+  alert(msg);
 }
