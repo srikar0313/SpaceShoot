@@ -1,32 +1,29 @@
+
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 canvas.width = 800;
 canvas.height = 600;
 
-// Load assets
 const backgroundImg = new Image();
 backgroundImg.src = 'assets/space-bg.png';
 const spaceshipImg = new Image();
 spaceshipImg.src = 'assets/spaceship.png';
 const alienImg = new Image();
-alienImg.src = 'assets/alien.png';
+alienImg.src = 'assets/spaceship.png'; // Placeholder
 const bulletImg = new Image();
 bulletImg.src = 'assets/bullet.png';
 const shootSound = new Audio('assets/laser.wav');
-const explosionSound = new Audio('assets/explosion.wav');
+const explosionSound = new Audio('assets/laser.wav');
 
-// Player
 let playerX = 370;
 let playerY = 480;
 let playerXChange = 0;
 
-// Bullet
 let bulletX = 0;
 let bulletY = 480;
 let bulletYChange = 10;
 let bulletState = 'ready';
 
-// Enemies
 let enemies = [];
 let numberOfEnemies = 3;
 for (let i = 0; i < numberOfEnemies; i++) {
@@ -38,10 +35,7 @@ for (let i = 0; i < numberOfEnemies; i++) {
   });
 }
 
-// Score
 let score = 0;
-
-// Keyboard controls
 let keys = {};
 document.addEventListener('keydown', (e) => {
   keys[e.key] = true;
@@ -57,7 +51,6 @@ document.addEventListener('keyup', (e) => {
   keys[e.key] = false;
 });
 
-// Draw Functions
 function drawBackground() {
   ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
 }
@@ -75,27 +68,18 @@ function drawScore() {
   ctx.font = '24px sans-serif';
   ctx.fillText('Score: ' + score, 10, 30);
 }
-
-// Collision Detection
 function isCollision(enemy) {
   const dx = bulletX - enemy.x;
   const dy = bulletY - enemy.y;
   return Math.sqrt(dx * dx + dy * dy) < 30;
 }
-
-// Game Loop
 function gameLoop() {
   drawBackground();
-
-  // Player movement
   if (keys['ArrowLeft']) playerX -= 5;
   if (keys['ArrowRight']) playerX += 5;
   if (playerX < 0) playerX = 0;
   if (playerX > canvas.width - 64) playerX = canvas.width - 64;
-
   drawPlayer();
-
-  // Bullet movement
   if (bulletState === 'fire') {
     drawBullet();
     bulletY -= bulletYChange;
@@ -104,8 +88,6 @@ function gameLoop() {
       bulletState = 'ready';
     }
   }
-
-  // Enemies movement
   for (let i = 0; i < enemies.length; i++) {
     let e = enemies[i];
     e.x += e.xChange;
@@ -113,15 +95,12 @@ function gameLoop() {
       e.xChange *= -1;
       e.y += e.yChange;
     }
-
     if (e.y > 440) {
-      // Game over
       ctx.fillStyle = 'white';
       ctx.font = '40px sans-serif';
       ctx.fillText('GAME OVER', canvas.width / 2 - 100, canvas.height / 2);
       return;
     }
-
     if (isCollision(e)) {
       explosionSound.play();
       bulletY = 480;
@@ -134,10 +113,8 @@ function gameLoop() {
         yChange: 20
       };
     }
-
     drawEnemy(e);
   }
-
   drawScore();
   requestAnimationFrame(gameLoop);
 }
