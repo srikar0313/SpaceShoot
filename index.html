@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,9 +7,16 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="instructions">Press ⬅️ ➡️ to move | Press ␣ Spacebar to attack</div>
-  <canvas id="gameCanvas"></canvas>
-  <div id="scoreDisplay">Score: 0</div>
+  <div id="startScreen">
+    <h2>Enter Your Name to Start</h2>
+    <input type="text" id="playerName" placeholder="Your name" />
+    <button onclick="startGame()">Play</button>
+  </div>
+
+  <div id="instructions" style="display:none;">Press ⬅️ ➡️ to move | Press ␣ Spacebar to attack</div>
+  <canvas id="gameCanvas" style="display:none;"></canvas>
+  <div id="scoreDisplay" style="display:none;">Score: 0</div>
+
   <script src="script.js"></script>
 </body>
 </html>
