@@ -1,4 +1,3 @@
-
 body {
   margin: 0;
   overflow: hidden;
@@ -6,6 +5,13 @@ body {
   font-family: monospace;
   color: white;
   text-align: center;
+}
+#startScreen {
+  padding-top: 150px;
+}
+#playerName {
+  padding: 8px;
+  font-size: 16px;
 }
 #gameCanvas {
   display: block;
